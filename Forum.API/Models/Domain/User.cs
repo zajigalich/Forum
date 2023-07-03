@@ -5,7 +5,7 @@ namespace Forum.API.Models.Domain
 {
 	public class User
 	{
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [MaxLength(50)]
         public string Email { get; set; }
@@ -28,9 +28,9 @@ namespace Forum.API.Models.Domain
 
         public List<SocialLink> SocialLinks { get; set; } // would be serialized
 
-        /*// Navigational properties
-        public List<Role> Roles { get; set; }
-        public List<Post> Posts { get; set; }*/
 
-    }
+		// Navigational properties
+		public List<Role> Roles { get; set; }
+
+	}
 }
