@@ -29,5 +29,8 @@ namespace Forum.API.Models.Domain
         public List<SocialLink> SocialLinks { get; set; } // would be serialized
 
 
-    }
+		// Navigational properties
+		public List<Role> Roles { get; set; }
+
+	}
 }

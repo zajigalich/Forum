@@ -1,5 +1,6 @@
 ﻿using Forum.API.Models.Domain;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Forum.API.Data
 {
@@ -14,5 +15,15 @@ namespace Forum.API.Data
 
         public DbSet<Role> Roles { get; set; }
 
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+
+			modelBuilder.Entity<User>().Property(u => u.SocialLinks)
+				.HasConversion(
+					v => JsonConvert.SerializeObject(v),
+					v => JsonConvert.DeserializeObject<List<SocialLink>>(v));
+
+		}
 	}
 }
