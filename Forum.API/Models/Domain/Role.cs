@@ -6,6 +6,7 @@
 		public string Name { get; set; }
 
         // Navigational properties
-        public List<User> Users { get; set; }
+        public List<User> Users { get; } = new();
+
     }
 }

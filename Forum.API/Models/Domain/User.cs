@@ -29,11 +29,11 @@ namespace Forum.API.Models.Domain
         public IFormFile? Image { get; set; }
         public string? ImagePath { get; set; }
 
-        public List<SocialLink> SocialLinks { get; set; } // would be serialized
+        public List<SocialLink>? SocialLinks { get; set; } // would be serialized
 
 
 		// Navigational properties
-		public List<Role> Roles { get; set; }
+		public List<Role> Roles { get; } = new();
 
 	}
 }
