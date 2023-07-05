@@ -1,7 +1,7 @@
-﻿using Forum.API.Models.Domain;
+﻿using AutoMapper;
+using Forum.API.Models.Domain;
 using Forum.API.Models.DTO;
 using Forum.API.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Forum.API.Controllers
@@ -12,11 +12,13 @@ namespace Forum.API.Controllers
 	{
 		private readonly IUserRepository userRepository;
 		private readonly ITokenRepository tokenRepository;
+		private readonly IMapper mapper;
 
-		public AuthController(IUserRepository userRepository, ITokenRepository tokenRepository)
-        {
+		public AuthController(IUserRepository userRepository, ITokenRepository tokenRepository, IMapper mapper)
+		{
 			this.userRepository=userRepository;
 			this.tokenRepository=tokenRepository;
+			this.mapper=mapper;
 		}
 
 		// CREATE USER
@@ -25,12 +27,7 @@ namespace Forum.API.Controllers
 		[Route("Register")]
 		public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
 		{
-			var userDomainModel = new User()
-			{
-				Email = registerRequestDto.Email,
-				Password = registerRequestDto.Password,
-				DisplayName = registerRequestDto.DisplayName
-			};
+			var userDomainModel = mapper.Map<User>(registerRequestDto);
 
 			var user = await userRepository.CreateAsync(userDomainModel);
 
@@ -51,27 +48,23 @@ namespace Forum.API.Controllers
 		{
 			var user = await userRepository.FindByEmailAsync(loginRequestDto.Email);
 
-			if (user != null)
+			if (user != null && (user.Password == loginRequestDto.Password))
 			{
-				var checkPasswordResult = user.Password == loginRequestDto.Password;
+				var roles = user.Roles.Select(r => r.Name);
 
-				if (checkPasswordResult)
+				if (roles != null)
 				{
-					var roles = user.Roles.Select(r => r.Name);
+					// CreateToken*/
 
-					if (roles != null)
+					var jwtToken = tokenRepository.CreateJwtToken(user, roles.ToList());
+
+					var loginResponce = new LoginResponceDto()
 					{
-						// CreateToken*/
+						JwtToken = jwtToken
+					};
 
-						var jwtToken = tokenRepository.CreateJwtToken(user, roles.ToList());
+					return Ok(loginResponce);
 
-						var loginResponce = new LoginResponceDto()
-						{
-							JwtToken = jwtToken
-						};
-
-						return Ok(loginResponce);
-					}
 				}
 			}
 
