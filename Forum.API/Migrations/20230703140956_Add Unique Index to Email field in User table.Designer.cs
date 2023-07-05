@@ -3,6 +3,7 @@ using System;
 using Forum.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Forum.API.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    partial class ForumDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230703140956_Add Unique Index to Email field in User table")]
+    partial class AddUniqueIndextoEmailfieldinUsertable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,40 +40,6 @@ namespace Forum.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Poster"
-                        });
-                });
-
-            modelBuilder.Entity("Forum.API.Models.Domain.RoleUser", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("RoleId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RoleUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("Forum.API.Models.Domain.User", b =>
@@ -109,6 +78,7 @@ namespace Forum.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("SocialLinks")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -117,29 +87,34 @@ namespace Forum.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Deactivated = false,
-                            DisplayName = "Admin",
-                            Email = "admin@forum.com",
-                            Password = "admin"
-                        });
                 });
 
-            modelBuilder.Entity("Forum.API.Models.Domain.RoleUser", b =>
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.Property<int>("RolesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoleUser");
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("Forum.API.Models.Domain.Role", null)
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Forum.API.Models.Domain.User", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

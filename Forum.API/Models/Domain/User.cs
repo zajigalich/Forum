@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Forum.API.Models.Domain
 {
+	[Index(nameof(Email), IsUnique = true)]
 	public class User
 	{
         public int Id { get; set; }
@@ -26,11 +29,11 @@ namespace Forum.API.Models.Domain
         public IFormFile? Image { get; set; }
         public string? ImagePath { get; set; }
 
-        public List<SocialLink> SocialLinks { get; set; } // would be serialized
+        public List<SocialLink>? SocialLinks { get; set; } // would be serialized
 
 
 		// Navigational properties
-		public List<Role> Roles { get; set; }
+		public List<Role> Roles { get; } = new();
 
 	}
 }
