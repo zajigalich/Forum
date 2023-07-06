@@ -13,6 +13,6 @@ namespace Forum.API.Models.DTO
 		public string Password { get; set; }
 
 		[Required]
-        public string DisplayName { get; set; }
+        public string Username { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace Forum.API.Controllers
 		{
 			var identityUser = new User()
 			{
-				UserName = registerRequestDto.DisplayName,
+				UserName = registerRequestDto.Username,
 				Email = registerRequestDto.Email
 			};
 
@@ -45,7 +45,7 @@ namespace Forum.API.Controllers
 				}
 			}
 
-			return BadRequest(identityResult);
+			return BadRequest("Something went wrong");
 		}
 
 		// LOGIN USER

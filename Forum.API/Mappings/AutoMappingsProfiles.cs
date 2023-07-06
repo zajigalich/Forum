@@ -8,7 +8,7 @@ namespace Forum.API.Mappings
 	{
 		public AutoMappingsProfiles()
 		{
-			CreateMap<User, RegisterRequestDto>().ReverseMap();
+			//CreateMap<User, RegisterRequestDto>().ReverseMap();
 		}
 	}
 }

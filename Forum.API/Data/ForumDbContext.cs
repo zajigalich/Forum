@@ -13,7 +13,7 @@ namespace Forum.API.Data
 
 		}
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 
@@ -51,19 +51,19 @@ namespace Forum.API.Data
 
 			var users = new List<User>()
 			{
-				new User() { 
-					Id = "483b5d6e-6098-4392-ac76-37a9c76d4561", 
-					Email="admin@forum.com", 
-					EmailConfirmed = true,
+				new User() {
+					Id = "483b5d6e-6098-4392-ac76-37a9c76d4561",
+					Email="admin@forum.com",
+					NormalizedEmail = "admin@forum.com".ToUpper(),
 					UserName="admin",
 					NormalizedUserName="ADMIN",
 				},
 				new User() {
 					Id = "8bd0b433-3eb3-4c51-9ef6-23323e0ec16c",
-					Email="poster@forum.com",
-					EmailConfirmed = true,
-					UserName="poster",
-					NormalizedUserName="POSTER",
+					Email = "poster@forum.com",
+					NormalizedEmail = "poster@forum.com".ToUpper(),
+					UserName = "poster",
+					NormalizedUserName = "POSTER",
 				}
 			};
 
@@ -88,6 +88,16 @@ namespace Forum.API.Data
 			};
 
 			modelBuilder.Entity<IdentityUserRole<string>>().HasData(roleUsers);
+
+			modelBuilder.Entity<User>()
+				.Ignore(c => c.AccessFailedCount)
+				.Ignore(c => c.LockoutEnabled)
+				.Ignore(c => c.LockoutEnd)
+				.Ignore(c => c.TwoFactorEnabled)
+				.Ignore(c => c.PhoneNumber)
+				.Ignore(c => c.PhoneNumberConfirmed)
+				.Ignore(c => c.AccessFailedCount)
+				.Ignore(c => c.EmailConfirmed);
 		}
 	}
 }
