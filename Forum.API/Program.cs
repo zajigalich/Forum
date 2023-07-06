@@ -3,6 +3,7 @@ using Forum.API.Mappings;
 using Forum.API.Models.Domain;
 using Forum.API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -22,7 +23,7 @@ builder.Services.AddSwaggerGen(options =>
 	{
 		Name = "Authorization",
 		In = ParameterLocation.Header,
-		Type = SecuritySchemeType.ApiKey,
+		Type = SecuritySchemeType.Http,
 		Scheme = JwtBearerDefaults.AuthenticationScheme
 	});
 
@@ -52,6 +53,26 @@ builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IUserRepository, SQLUserRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMappingsProfiles));
+
+builder.Services.AddIdentityCore<User>()
+	.AddRoles<IdentityRole>()
+	.AddTokenProvider<DataProtectorTokenProvider<User>>("Forum")
+	.AddEntityFrameworkStores<ForumDbContext>()
+	.AddDefaultTokenProviders();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+	options.Password.RequireDigit = false;
+	options.Password.RequireLowercase = false;
+	options.Password.RequireUppercase = false;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequiredLength = 5;
+	options.Password.RequiredUniqueChars = 1;
+
+	options.User.RequireUniqueEmail = true;
+	options.User.AllowedUserNameCharacters =
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+});
 
 //builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

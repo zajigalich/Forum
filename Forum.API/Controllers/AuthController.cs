@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Forum.API.Models.Domain;
+﻿using Forum.API.Models.Domain;
 using Forum.API.Models.DTO;
 using Forum.API.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Forum.API.Controllers
@@ -10,15 +10,13 @@ namespace Forum.API.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		private readonly IUserRepository userRepository;
+		private readonly UserManager<User> userManager;
 		private readonly ITokenRepository tokenRepository;
-		private readonly IMapper mapper;
 
-		public AuthController(IUserRepository userRepository, ITokenRepository tokenRepository, IMapper mapper)
+		public AuthController(UserManager<User> userManager, ITokenRepository tokenRepository)
 		{
-			this.userRepository=userRepository;
+			this.userManager=userManager;
 			this.tokenRepository=tokenRepository;
-			this.mapper=mapper;
 		}
 
 		// CREATE USER
@@ -27,17 +25,27 @@ namespace Forum.API.Controllers
 		[Route("Register")]
 		public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
 		{
-			var userDomainModel = mapper.Map<User>(registerRequestDto);
-
-			var user = await userRepository.CreateAsync(userDomainModel);
-
-			if (user != null)
+			var identityUser = new User()
 			{
-				return Ok("User was registered! Please login.");
+				UserName = registerRequestDto.DisplayName,
+				Email = registerRequestDto.Email
+			};
 
+			var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
+
+			if (identityResult.Succeeded)
+			{
+				var posterRole = "Poster";
+
+				identityResult = await userManager.AddToRoleAsync(identityUser, posterRole);
+
+				if (identityResult.Succeeded)
+				{
+					return Ok("User was registered! Please login.");
+				}
 			}
 
-			return BadRequest("Something went wrong");
+			return BadRequest(identityResult);
 		}
 
 		// LOGIN USER
@@ -46,29 +54,35 @@ namespace Forum.API.Controllers
 		[Route("Login")]
 		public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
 		{
-			var user = await userRepository.FindByEmailAsync(loginRequestDto.Email);
+			var user = await userManager.FindByEmailAsync(loginRequestDto.Email);
 
-			if (user != null && (user.Password == loginRequestDto.Password))
+			if (user != null)
 			{
-				var roles = user.Roles.Select(r => r.Name);
+				var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
-				if (roles != null)
+				if (checkPasswordResult)
 				{
-					// CreateToken*/
+					var roles = await userManager.GetRolesAsync(user);
 
-					var jwtToken = tokenRepository.CreateJwtToken(user, roles.ToList());
-
-					var loginResponce = new LoginResponceDto()
+					if (roles != null)
 					{
-						JwtToken = jwtToken
-					};
+						// CreateToken*/
 
-					return Ok(loginResponce);
+						var jwtToken = tokenRepository.CreateJwtToken(user, roles.ToList());
+
+						var loginResponce = new LoginResponceDto()
+						{
+							JwtToken = jwtToken
+						};
+
+						return Ok(loginResponce);
+					}
 
 				}
 			}
 
 			return BadRequest("Username or password incorrect");
 		}
+
 	}
 }
