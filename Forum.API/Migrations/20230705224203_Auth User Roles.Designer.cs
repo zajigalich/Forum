@@ -3,6 +3,7 @@ using System;
 using Forum.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Forum.API.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    partial class ForumDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230705224203_Auth User Roles")]
+    partial class AuthUserRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,6 +34,9 @@ namespace Forum.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("date");
 
@@ -45,8 +51,17 @@ namespace Forum.API.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -59,11 +74,20 @@ namespace Forum.API.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
                     b.Property<string>("SocialLinks")
                         .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -87,25 +111,33 @@ namespace Forum.API.Migrations
                         new
                         {
                             Id = "483b5d6e-6098-4392-ac76-37a9c76d4561",
-                            ConcurrencyStamp = "2bc44184-59c0-44ce-81fd-989f874fd0e1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "920373a7-714f-48a0-bf54-6ecc7efbb26b",
                             Deactivated = false,
                             Email = "admin@forum.com",
-                            NormalizedEmail = "ADMIN@FORUM.COM",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMRNXif1y4xLa1OBP+XtiJ9kH+oktDl1JzNRwNc/hisS6JXXhPyoVfyzJ9yyjGhKoQ==",
-                            SecurityStamp = "53e8ff99-5d89-4788-93b6-960269de9cc0",
+                            PasswordHash = "AQAAAAEAACcQAAAAELZOrjmSAXgHd4AaOfo2I+bKiovSLK81JGEQ3qCjf+aHusQHfs7Koc2/UsbTL9sX3A==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "48d90102-3de2-43b6-a69a-237d1ae9ed9c",
+                            TwoFactorEnabled = false,
                             UserName = "admin"
                         },
                         new
                         {
                             Id = "8bd0b433-3eb3-4c51-9ef6-23323e0ec16c",
-                            ConcurrencyStamp = "b1f7596e-5c44-4fbc-8e6c-c66ac879e755",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "fb2973ab-8b62-4dbe-bb7f-4bc2c3011dd7",
                             Deactivated = false,
                             Email = "poster@forum.com",
-                            NormalizedEmail = "POSTER@FORUM.COM",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
                             NormalizedUserName = "POSTER",
-                            PasswordHash = "AQAAAAEAACcQAAAAEA5zn1w9OXJhnb0dH/O4ahJbad/JD+up3+q02VKCSKHC/q0tZaVfQfujuOqlgTUFIQ==",
-                            SecurityStamp = "d47e4b02-d7df-428d-b4b9-c26f8a5c5098",
+                            PasswordHash = "AQAAAAEAACcQAAAAEIeMueRHgnW7SfiOyExE3EAVkbg6k89u+w2yrHANQeEKM98DEqzw/UND6Cf+gYD64Q==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "e8474279-d352-4fdd-b75c-c267c5bfffa0",
+                            TwoFactorEnabled = false,
                             UserName = "poster"
                         });
                 });

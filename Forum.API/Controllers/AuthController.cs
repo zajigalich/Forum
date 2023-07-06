@@ -10,12 +10,12 @@ namespace Forum.API.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		private readonly IUserRepository userRepository;
+		private readonly UserManager<User> userManager;
 		private readonly ITokenRepository tokenRepository;
 
-		public AuthController(IUserRepository userRepository, ITokenRepository tokenRepository)
-        {
-			this.userRepository=userRepository;
+		public AuthController(UserManager<User> userManager, ITokenRepository tokenRepository)
+		{
+			this.userManager=userManager;
 			this.tokenRepository=tokenRepository;
 		}
 
@@ -25,19 +25,24 @@ namespace Forum.API.Controllers
 		[Route("Register")]
 		public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
 		{
-			var userDomainModel = new User()
+			var identityUser = new User()
 			{
-				Email = registerRequestDto.Email,
-				Password = registerRequestDto.Password,
-				DisplayName = registerRequestDto.DisplayName
+				UserName = registerRequestDto.Username,
+				Email = registerRequestDto.Email
 			};
 
-			var user = await userRepository.CreateAsync(userDomainModel);
+			var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
 
-			if (user != null)
+			if (identityResult.Succeeded)
 			{
-				return Ok("User was registered! Please login.");
+				var posterRole = "Poster";
 
+				identityResult = await userManager.AddToRoleAsync(identityUser, posterRole);
+
+				if (identityResult.Succeeded)
+				{
+					return Ok("User was registered! Please login.");
+				}
 			}
 
 			return BadRequest("Something went wrong");
@@ -49,15 +54,15 @@ namespace Forum.API.Controllers
 		[Route("Login")]
 		public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
 		{
-			var user = await userRepository.FindByEmailAsync(loginRequestDto.Email);
+			var user = await userManager.FindByEmailAsync(loginRequestDto.Email);
 
 			if (user != null)
 			{
-				var checkPasswordResult = user.Password == loginRequestDto.Password;
+				var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
 				if (checkPasswordResult)
 				{
-					var roles = user.Roles.Select(r => r.Name);
+					var roles = await userManager.GetRolesAsync(user);
 
 					if (roles != null)
 					{
@@ -72,10 +77,12 @@ namespace Forum.API.Controllers
 
 						return Ok(loginResponce);
 					}
+
 				}
 			}
 
 			return BadRequest("Username or password incorrect");
 		}
+
 	}
 }
